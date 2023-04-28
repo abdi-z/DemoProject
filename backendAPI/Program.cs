@@ -1,12 +1,17 @@
 using backendAPI;
 using backendAPI.Extensions;
+using LoggerService;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-//helllo
+//logger service
+
+LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
+//loggerservice
 
 
 
@@ -15,6 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddScoped<ILoggerManager, LoggerManager>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

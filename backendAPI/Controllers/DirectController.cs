@@ -12,6 +12,7 @@ using System.Text.Encodings.Web;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System;
+using LoggerService;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,6 +23,7 @@ namespace backendAPI.Controllers
     [ApiController]
     public class DirectController : ControllerBase
     {
+        private readonly ILoggerManager _logger;
         JsonSerializerOptions options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -32,14 +34,19 @@ namespace backendAPI.Controllers
 
         // GET: api/<ValuesController>
         private readonly IGenericRepository<Models.LocationModel> _location;
-        public DirectController(IGenericRepository<Models.LocationModel> location)
+        
+        public DirectController(IGenericRepository<Models.LocationModel> location, ILoggerManager logger)
         {
+            _logger = logger;
             _location = location;
         }
+
+     
         [HttpPost]
         [Route("/dbaddlocation")]
         public async Task<ActionResult<List<Models.LocationModel>>> Dbaddlocation([FromBody] JsonObject data)
         {
+            _logger.LogInfo("ActionMethod Called: Dbaddlocation");
             try
             {
                 dynamic location = data["location"];
@@ -63,7 +70,7 @@ namespace backendAPI.Controllers
                 };
 
                 await _location.InsertAsync(locationHourRange);
-
+                _logger.LogInfo("New location successfully added");
                 return Ok(new
                 {
                     StatusCode = 200,
@@ -73,6 +80,7 @@ namespace backendAPI.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError("Error creating location");
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     StatusCode = 500,
@@ -88,12 +96,13 @@ namespace backendAPI.Controllers
         [Route("/dbgetlocations")]
         public async Task<ActionResult<List<Models.LocationModel>>> Dbgetlocations()
         {
+            _logger.LogInfo("ActionMethod Called: Dbgetlocations");
             try
             {
                 List<Models.LocationModel> locations = _location.GetAll().ToList();
                 if (locations.Count == 0)
                 {
-
+                    _logger.LogError("Location was not found");
                     return NotFound(new
                     {
                         StatusCode = 404,
@@ -102,6 +111,7 @@ namespace backendAPI.Controllers
                     });
                 }
 
+                _logger.LogInfo("Multiple Locations were fetched");
                 return Ok(new
                 {
                     StatusCode = 200,
@@ -111,6 +121,7 @@ namespace backendAPI.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError("Internal server error occured");
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     StatusCode = 500,
@@ -124,6 +135,8 @@ namespace backendAPI.Controllers
         [HttpPost("/getLocationsFromCsv")]
         public ActionResult<List<string[]>> GetLocationsFromCsv(IFormFile file)
         {
+
+            _logger.LogInfo("ActionMethod Called: GetLocationsFromCsv");
             try
             {
                 using var reader = new StreamReader(file.OpenReadStream());
@@ -156,6 +169,7 @@ namespace backendAPI.Controllers
                         locations.Add(loc);
                     }
                 }
+                _logger.LogInfo("Locations from the csv was passed successfully");
                 return Ok(new
                 {
                     StatusCode = 200,
@@ -165,6 +179,7 @@ namespace backendAPI.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError("Error was occured while parsing CSV");
                 return BadRequest(new
                 {
                     StatusCode = 500,
@@ -177,6 +192,8 @@ namespace backendAPI.Controllers
         [HttpPost("/getLocationsFromDB")]
         public ActionResult<List<string[]>> GetLocationsFromDB()
         {
+
+            _logger.LogInfo("ActionMethod Called: GetLocationsFromDB");
             try
             {
                 var locations = _location.GetAll().ToList();
@@ -195,7 +212,7 @@ namespace backendAPI.Controllers
                     }
                 }
 
-
+                _logger.LogInfo("Locations on a condition were fetched from database");
                 return Ok(new
                 {
                     StatusCode = 200,
@@ -205,6 +222,8 @@ namespace backendAPI.Controllers
             }
             catch (Exception ex)
             {
+
+                _logger.LogError("Internal error was occured while fetching locations on a condition from Database");
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     StatusCode = 500,

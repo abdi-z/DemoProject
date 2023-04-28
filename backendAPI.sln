@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backendAPI", "backendAPI\backendAPI.csproj", "{92EFF2DF-CD37-4748-8D70-8DC9112683DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backendAPI", "backendAPI\backendAPI.csproj", "{92EFF2DF-CD37-4748-8D70-8DC9112683DA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9EB36319-0D5D-4462-8057-3FEEF00ADBA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerService", "LoggerService\LoggerService.csproj", "{F03462CA-4AED-4E85-BEA3-316D56348528}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{92EFF2DF-CD37-4748-8D70-8DC9112683DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92EFF2DF-CD37-4748-8D70-8DC9112683DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92EFF2DF-CD37-4748-8D70-8DC9112683DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F03462CA-4AED-4E85-BEA3-316D56348528}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F03462CA-4AED-4E85-BEA3-316D56348528}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F03462CA-4AED-4E85-BEA3-316D56348528}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F03462CA-4AED-4E85-BEA3-316D56348528}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
