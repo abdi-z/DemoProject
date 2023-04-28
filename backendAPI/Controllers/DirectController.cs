@@ -15,6 +15,8 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using backendAPI.UnitOfWork;
 using backendAPI.IRepository;
+using NuGet.Protocol.Core.Types;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,22 +26,14 @@ namespace backendAPI.Controllers
     [ApiController]
     public class DirectController : ControllerBase
     {
-        private readonly IGenericRepository<Models.LocationModel> _location;
-        private GenericRepository<LocationModel> genericRepository;
-        JsonSerializerOptions options = new JsonSerializerOptions
+        private readonly IGenericRepository<LocationModel> _locationRepository;
+        private readonly IUnitOfWork<DatabaseContextCla> _unitOfWork;
+        public DirectController(DatabaseContextCla dbContext)
         {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            WriteIndented = true
-            
-        };
-        
-        private TimeSpan currentTime;
-
-        public DirectController(IGenericRepository<Models.LocationModel> location,DatabaseContextCla dbContext)
-        {
-            _location = location;
-            genericRepository = new GenericRepository<LocationModel>(dbContext);
+            _unitOfWork = new UnitOfWork<DatabaseContextCla>(dbContext);
+            _locationRepository = new GenericRepository<LocationModel>(dbContext);
         }
+
         //UoW-below
         [HttpPost]
         [Route("/uow-get")]
@@ -47,8 +41,8 @@ namespace backendAPI.Controllers
         {
             try
             {
-                var locations = _location.GetAll().ToList();
-                var uowLocations = genericRepository.GetAll().ToList();
+                var locations = _locationRepository.GetAll().ToList();
+                var uowLocations = _locationRepository.GetAll().ToList();
 
                 TimeSpan startTime = TimeSpan.Parse(LocationConstant.StartingTime);
                 TimeSpan endTime = TimeSpan.Parse(LocationConstant.EndingTime);
@@ -82,12 +76,6 @@ namespace backendAPI.Controllers
             }
         }
 
-
-        //UoW-Above
-
-
-
-
         [HttpPost]
         [Route("/dbaddlocation")]
         public async Task<ActionResult<List<Models.LocationModel>>> Dbaddlocation([FromBody] JsonObject data)
@@ -114,8 +102,14 @@ namespace backendAPI.Controllers
                     Hour = hour
                 };
 
-                await _location.InsertAsync(locationHourRange);
+                // Begin the Transaction
+                _unitOfWork.CreateTransaction();
+                await _locationRepository.InsertAsync(locationHourRange);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
 
+
+               // await _locationRepository.InsertAsync(locationHourRange);
                 return Ok(new
                 {
                     StatusCode = 200,
@@ -125,6 +119,7 @@ namespace backendAPI.Controllers
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     StatusCode = 500,
@@ -194,7 +189,7 @@ namespace backendAPI.Controllers
         {
             try
             {
-                var locations = _location.GetAll().ToList();
+                var locations = _locationRepository.GetAll().ToList();
 
                 TimeSpan startTime = TimeSpan.Parse(LocationConstant.StartingTime);
                 TimeSpan endTime = TimeSpan.Parse(LocationConstant.EndingTime);
