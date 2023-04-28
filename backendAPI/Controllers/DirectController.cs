@@ -26,7 +26,6 @@ namespace backendAPI.Controllers
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true
-            
         };
         private TimeSpan currentTime;
 
@@ -36,6 +35,7 @@ namespace backendAPI.Controllers
         {
             _location = location;
         }
+
         [HttpPost]
         [Route("/dbaddlocation")]
         public async Task<ActionResult<List<Models.LocationModel>>> Dbaddlocation([FromBody] JsonObject data)
@@ -46,14 +46,13 @@ namespace backendAPI.Controllers
                 dynamic hour = IsValidTimeFormat((string)data["hour"]);
 
                 if (string.IsNullOrEmpty((string)location))
-                    return BadRequest(
-                        new
-                        {
-                            StatusCode = 400,
-                            Message = "Location was empty"
-                        });
+                    return BadRequest(new
+                    {
+                        Message = "Location was empty"
+                    });
+                ;
 
-                if(hour == null)
+                if (hour == null)
                     hour = DateTime.Now.TimeOfDay;
 
                 var locationHourRange = new Models.LocationModel
@@ -64,21 +63,16 @@ namespace backendAPI.Controllers
 
                 await _location.InsertAsync(locationHourRange);
 
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Message = "Success",
-                    Data = locationHourRange
-                });
+                return Ok(locationHourRange, "Success");
+
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
+                return BadRequest(new
                 {
-                    StatusCode = 500,
-                    Message = ex.Message
+                    Errors = ex,
+                    ex.Message
                 });
-
             }
 
         }
@@ -93,28 +87,23 @@ namespace backendAPI.Controllers
                 List<Models.LocationModel> locations = _location.GetAll().ToList();
                 if (locations.Count == 0)
                 {
-
-                    return NotFound(new
+                    return BadRequest(new
                     {
                         StatusCode = 404,
                         Message = "No objects found",
                         Data = LocationDTO.serializeLocList(locations)
                     });
+
                 }
 
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Message = "Success",
-                    Data = locations
-                });
+                return Ok(locations, "Success");
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
+                return BadRequest(new
                 {
-                    StatusCode = 500,
-                    Message = ex.Message
+                    Errors = ex,
+                    ex.Message
                 });
             }
         }
@@ -156,19 +145,15 @@ namespace backendAPI.Controllers
                         locations.Add(loc);
                     }
                 }
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Message = "CSV file parsed successfully",
-                    Data = locations
-            });
+                return Ok(locations, "CSV file parsed successfully");
+
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
-                    StatusCode = 500,
-                    Message = ex.Message,
+                    Errors = ex,
+                    ex.Message
                 });
             }
         }
@@ -195,20 +180,15 @@ namespace backendAPI.Controllers
                     }
                 }
 
+                return Ok(filteredLocations, "Locations received successfully");
 
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Message = "Locations received successfully",
-                    Data = filteredLocations
-                });
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
+                return BadRequest(new
                 {
-                    StatusCode = 500,
-                    Message = ex.Message
+                    Errors = ex,
+                    ex.Message
                 });
             }
         }
