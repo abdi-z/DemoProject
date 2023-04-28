@@ -13,10 +13,10 @@ namespace backendAPI.Repository.Generic
      
         private readonly IUnitOfWork<DatabaseContextCla> _unitOfWork;
 
-        public GenericRepository(IUnitOfWork<DatabaseContextCla> unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        //public GenericRepository(IUnitOfWork<DatabaseContextCla> unitOfWork)
+        //{
+        //    _unitOfWork = unitOfWork;
+        //}
         public GenericRepository(DatabaseContextCla dbContext)
         {
             _unitOfWork = new UnitOfWork<DatabaseContextCla>(dbContext);

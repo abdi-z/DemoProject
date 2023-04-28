@@ -24,12 +24,8 @@ namespace backendAPI.Controllers
     [ApiController]
     public class DirectController : ControllerBase
     {
-        private readonly IUnitOfWork<DatabaseContextCla> _unitOfWork;
-        // private UnitOfWork<DatabaseContextCla> unitOfWork = new UnitOfWork<DatabaseContextCla>();
+        private readonly IGenericRepository<Models.LocationModel> _location;
         private GenericRepository<LocationModel> genericRepository;
-        private ILocationRepository locationRepository;
-     
-
         JsonSerializerOptions options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -39,14 +35,10 @@ namespace backendAPI.Controllers
         
         private TimeSpan currentTime;
 
-        // GET: api/<ValuesController>
-        private readonly IGenericRepository<Models.LocationModel> _location;
-
-        public DirectController(IGenericRepository<Models.LocationModel> location,IUnitOfWork<DatabaseContextCla> unitOfWork)
+        public DirectController(IGenericRepository<Models.LocationModel> location,DatabaseContextCla dbContext)
         {
-            _unitOfWork = unitOfWork;
             _location = location;
-            genericRepository = new GenericRepository<LocationModel>(unitOfWork);
+            genericRepository = new GenericRepository<LocationModel>(dbContext);
         }
         //UoW-below
         [HttpPost]
