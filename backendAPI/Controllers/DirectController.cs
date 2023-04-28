@@ -101,13 +101,33 @@ namespace backendAPI.Controllers
                     Location = (string)location,
                     Hour = hour
                 };
+                /*   var locationHourRange2 = new Models.LocationModel
+              {
+                      Location = "l1",
+                      Hour = hour
+                  };
+                  var locationHourRange1 = new Models.LocationModel
+                  {
+                      Location = "l2",
+                      Hour = hour
+                  };
+
+                  var locationHourRangeList = new List<LocationModel>();
+                  locationHourRangeList.Add(locationHourRange2);
+                  locationHourRangeList.Add(locationHourRange1);
+
+                  _unitOfWork.CreateTransaction();
+                  foreach (var item in locationHourRangeList)
+                  {
+                      await _locationRepository.InsertAsync(item);
+                  }
+  */
 
                 // Begin the Transaction
                 _unitOfWork.CreateTransaction();
                 await _locationRepository.InsertAsync(locationHourRange);
                 _unitOfWork.Save();
                 _unitOfWork.Commit();
-
 
                // await _locationRepository.InsertAsync(locationHourRange);
                 return Ok(new
