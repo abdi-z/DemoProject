@@ -2,6 +2,7 @@
 using backendAPI.Models;
 using backendAPI.Repository;
 using backendAPI.Repository.Generic;
+using backendAPI.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace backendAPI.Extensions
@@ -10,8 +11,10 @@ namespace backendAPI.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config) 
         {
-            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddTransient<ILocationRepository, LocationRepository>();
+           services.AddScoped<IUnitOfWork<DatabaseContextCla>, UnitOfWork<DatabaseContextCla>>();
+
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             services.AddDbContext<DatabaseContextCla>(options =>
             {

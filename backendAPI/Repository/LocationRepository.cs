@@ -6,6 +6,7 @@ namespace backendAPI.Repository
 {
     public class LocationRepository : ILocationRepository
     {
+        
 
     }
 }

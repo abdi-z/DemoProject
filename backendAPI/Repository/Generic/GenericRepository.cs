@@ -2,15 +2,24 @@
 using System.Linq.Expressions;
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using backendAPI.UnitOfWork;
 
 namespace backendAPI.Repository.Generic
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private DbSet<T> table;
-        public DatabaseContextCla _dbContext;
+        public DatabaseContextCla _dbContext = null;
+        private DbSet<T> table = null;
+     
+        private readonly IUnitOfWork<DatabaseContextCla> _unitOfWork;
+
+        public GenericRepository(IUnitOfWork<DatabaseContextCla> unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
         public GenericRepository(DatabaseContextCla dbContext)
         {
+            _unitOfWork = new UnitOfWork<DatabaseContextCla>(dbContext);
             _dbContext = dbContext;
             table = _dbContext.Set<T>();
         }

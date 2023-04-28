@@ -12,7 +12,9 @@ using System.Text.Encodings.Web;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System;
-
+using Microsoft.EntityFrameworkCore;
+using backendAPI.UnitOfWork;
+using backendAPI.IRepository;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,20 +24,78 @@ namespace backendAPI.Controllers
     [ApiController]
     public class DirectController : ControllerBase
     {
+        private readonly IUnitOfWork<DatabaseContextCla> _unitOfWork;
+        // private UnitOfWork<DatabaseContextCla> unitOfWork = new UnitOfWork<DatabaseContextCla>();
+        private GenericRepository<LocationModel> genericRepository;
+        private ILocationRepository locationRepository;
+     
+
         JsonSerializerOptions options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true
             
         };
+        
         private TimeSpan currentTime;
 
         // GET: api/<ValuesController>
         private readonly IGenericRepository<Models.LocationModel> _location;
-        public DirectController(IGenericRepository<Models.LocationModel> location)
+
+        public DirectController(IGenericRepository<Models.LocationModel> location,IUnitOfWork<DatabaseContextCla> unitOfWork)
         {
+            _unitOfWork = unitOfWork;
             _location = location;
+            genericRepository = new GenericRepository<LocationModel>(unitOfWork);
         }
+        //UoW-below
+        [HttpPost]
+        [Route("/uow-get")]
+        public ActionResult<List<string[]>> UowGet()
+        {
+            try
+            {
+                var locations = _location.GetAll().ToList();
+                var uowLocations = genericRepository.GetAll().ToList();
+
+                TimeSpan startTime = TimeSpan.Parse(LocationConstant.StartingTime);
+                TimeSpan endTime = TimeSpan.Parse(LocationConstant.EndingTime);
+                List<LocationModel> filteredLocations = new List<LocationModel>();
+
+                foreach (var location in uowLocations)
+                {
+                    TimeSpan currentTime = TimeSpan.Parse(location.Hour.ToString("H:mm"));
+
+                    if (currentTime <= endTime && currentTime >= startTime)
+                    {
+                        filteredLocations.Add(location);
+                    }
+                }
+
+
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Message = "Locations received successfully",
+                    Data = filteredLocations
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = 500,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
+        //UoW-Above
+
+
+
+
         [HttpPost]
         [Route("/dbaddlocation")]
         public async Task<ActionResult<List<Models.LocationModel>>> Dbaddlocation([FromBody] JsonObject data)
@@ -84,43 +144,6 @@ namespace backendAPI.Controllers
         }
 
 
-        [HttpGet]
-        [Route("/dbgetlocations")]
-        public async Task<ActionResult<List<Models.LocationModel>>> Dbgetlocations()
-        {
-            try
-            {
-                List<Models.LocationModel> locations = _location.GetAll().ToList();
-                if (locations.Count == 0)
-                {
-
-                    return NotFound(new
-                    {
-                        StatusCode = 404,
-                        Message = "No objects found",
-                        Data = LocationDTO.serializeLocList(locations)
-                    });
-                }
-
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Message = "Success",
-                    Data = locations
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    StatusCode = 500,
-                    Message = ex.Message
-                });
-            }
-        }
-
-
-        //HERE TEST
         [HttpPost("/getLocationsFromCsv")]
         public ActionResult<List<string[]>> GetLocationsFromCsv(IFormFile file)
         {

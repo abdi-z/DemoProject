@@ -4,6 +4,10 @@ namespace backendAPI
 {
     public class DatabaseContextCla : DbContext
     {
+        public DatabaseContextCla()
+        {
+
+        }
         public DatabaseContextCla(DbContextOptions options) : base(options)
         {
             
