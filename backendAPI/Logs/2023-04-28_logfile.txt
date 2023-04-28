@@ -1,0 +1,3 @@
+2023-04-28 21:24:04.8042 INFO Get All Locations from database
+2023-04-28 22:49:00.0642 INFO ActionMethod Called: Dbgetlocations
+2023-04-28 22:49:02.8108 INFO Multiple Locations were fetched
