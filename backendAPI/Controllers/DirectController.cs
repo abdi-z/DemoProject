@@ -20,7 +20,7 @@ namespace backendAPI.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    public class DirectController : ControllerBase
+    public class DirectController : BaseController
     {
         JsonSerializerOptions options = new JsonSerializerOptions
         {
